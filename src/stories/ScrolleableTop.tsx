@@ -11,16 +11,37 @@ const style = {
 
 export default class App extends React.Component {
   state = {
-    items: Array.from({ length: 20 }),
+    items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
   };
 
   fetchMoreData = () => {
+    const array = [-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10,]
     // a fake async api call like which sends
     // 20 more records in 1.5 secs
     setTimeout(() => {
       this.setState({
-        items: this.state.items.concat(Array.from({ length: 20 })),
+        items: [...this.state.items, ...array],
       });
+    }, 1500);
+  };
+
+  fetchMoreDataAfter = () => {
+    const array2 = [-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12, -13, -14, -15]
+    const scrollableDivElement = document.getElementById("scrollableDiv") as HTMLElement
+    const previousScrollTop = scrollableDivElement.scrollTop
+
+    // a fake async api call like which sends
+    // 20 more records in 1.5 secs
+    setTimeout(() => {
+      console.log(Math.round(previousScrollTop))
+      this.setState({
+        items: [...array2, ...this.state.items],
+      });
+      const AfterScrollTop = scrollableDivElement.scrollTop
+
+      console.log(Math.round(AfterScrollTop))
+      console.log(-Math.abs(previousScrollTop - AfterScrollTop))
+      scrollableDivElement.scrollTop = -Math.abs(previousScrollTop - AfterScrollTop)
     }, 1500);
   };
 
@@ -41,15 +62,19 @@ export default class App extends React.Component {
           <InfiniteScroll
             dataLength={this.state.items.length}
             next={this.fetchMoreData}
+            previous={this.fetchMoreDataAfter}
             style={{ display: 'flex', flexDirection: 'column-reverse' }} //To put endMessage and loader to the top.
-            inverse={true}
+            top={true}
+            bottom={true}
             hasMore={true}
+            hasMorePrevious={true}
             loader={<h4>Loading...</h4>}
+            downLoader={<h4>Loading...</h4>}
             scrollableTarget="scrollableDiv"
           >
-            {this.state.items.map((_, index) => (
+            {this.state.items.map((item, index) => (
               <div style={style} key={index}>
-                div - #{index}
+                div - #{item}
               </div>
             ))}
           </InfiniteScroll>
