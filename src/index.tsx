@@ -77,7 +77,7 @@ export default class InfiniteScroll extends Component<Props, State> {
     if (typeof this.props.dataLength === 'undefined') {
       throw new Error(
         `mandatory prop "dataLength" is missing. The prop is needed` +
-        ` when loading more content. Check README.md for usage`
+          ` when loading more content. Check README.md for usage`
       );
     }
 
@@ -287,13 +287,12 @@ export default class InfiniteScroll extends Component<Props, State> {
         : target.clientHeight;
 
     const threshold = parseThreshold(scrollThreshold);
-    console.log("atbottom")
     if (threshold.unit === ThresholdUnits.Pixel) {
       return (
         target.scrollTop + clientHeight >= target.scrollHeight - threshold.value
       );
     }
-    return (target.scrollTop >= -500);
+    return target.scrollTop >= -500;
   }
 
   onScrollListener = (event: MouseEvent) => {
@@ -307,8 +306,8 @@ export default class InfiniteScroll extends Component<Props, State> {
       this.props.height || this._scrollableNode
         ? (event.target as HTMLElement)
         : document.documentElement.scrollTop
-          ? document.documentElement
-          : document.body;
+        ? document.documentElement
+        : document.body;
 
     // return immediately if the action has already been triggered,
     // prevents multiple triggers.
@@ -365,7 +364,9 @@ export default class InfiniteScroll extends Component<Props, State> {
           ref={(infScroll: HTMLDivElement) => (this._infScroll = infScroll)}
           style={style}
         >
-          {this.state.showLoaderDown && this.props.hasMorePrevious && this.props.downLoader}
+          {this.state.showLoaderDown &&
+            this.props.hasMorePrevious &&
+            this.props.downLoader}
           {this.props.pullDownToRefresh && (
             <div
               style={{ position: 'relative' }}
