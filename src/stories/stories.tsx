@@ -9,26 +9,6 @@ import ScrolleableTop from './ScrolleableTop';
 
 const stories = storiesOf('Components', module);
 
-stories.add('InfiniteScroll', () => <WindowInf />, {
-  info: { inline: true },
-});
-
-stories.add('PullDownToRefresh', () => <PullDownToRefreshInfScroll />, {
-  info: { inline: true },
-});
-
-stories.add('InfiniteScrollWithHeight', () => <InfiniteScrollWithHeight />, {
-  info: { inline: true },
-});
-
-stories.add(
-  'ScrollableTargetInfiniteScroll',
-  () => <ScrollableTargetInfiniteScroll />,
-  {
-    info: { inline: true },
-  }
-);
-
 stories.add('InfiniteScrollTop', () => <ScrolleableTop />, {
   info: { inline: true },
 });
