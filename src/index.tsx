@@ -5,16 +5,20 @@ import { ThresholdUnits, parseThreshold } from './utils/threshold';
 type Fn = () => any;
 export interface Props {
   next: Fn;
+  previous: Fn;
   hasMore: boolean;
+  hasMorePrevious: boolean;
   children: ReactNode;
-  loader: ReactNode;
+  loader?: ReactNode;
+  downLoader: ReactNode;
   scrollThreshold?: number | string;
   endMessage?: ReactNode;
   style?: CSSProperties;
   height?: number | string;
   scrollableTarget?: ReactNode;
   hasChildren?: boolean;
-  inverse?: boolean;
+  top?: boolean;
+  bottom?: boolean;
   pullDownToRefresh?: boolean;
   pullDownToRefreshContent?: ReactNode;
   releaseToRefreshContent?: ReactNode;
@@ -28,6 +32,7 @@ export interface Props {
 
 interface State {
   showLoader: boolean;
+  showLoaderDown: boolean;
   pullToRefreshThresholdBreached: boolean;
   prevDataLength: number | undefined;
 }
@@ -38,6 +43,7 @@ export default class InfiniteScroll extends Component<Props, State> {
 
     this.state = {
       showLoader: false,
+      showLoaderDown: false,
       pullToRefreshThresholdBreached: false,
       prevDataLength: props.dataLength,
     };
@@ -71,7 +77,7 @@ export default class InfiniteScroll extends Component<Props, State> {
     if (typeof this.props.dataLength === 'undefined') {
       throw new Error(
         `mandatory prop "dataLength" is missing. The prop is needed` +
-          ` when loading more content. Check README.md for usage`
+        ` when loading more content. Check README.md for usage`
       );
     }
 
@@ -265,9 +271,8 @@ export default class InfiniteScroll extends Component<Props, State> {
         threshold.value + clientHeight - target.scrollHeight + 1
       );
     }
-
     return (
-      target.scrollTop <=
+      target.scrollTop - 500 <=
       threshold.value / 100 + clientHeight - target.scrollHeight + 1
     );
   }
@@ -282,17 +287,13 @@ export default class InfiniteScroll extends Component<Props, State> {
         : target.clientHeight;
 
     const threshold = parseThreshold(scrollThreshold);
-
+    console.log("atbottom")
     if (threshold.unit === ThresholdUnits.Pixel) {
       return (
         target.scrollTop + clientHeight >= target.scrollHeight - threshold.value
       );
     }
-
-    return (
-      target.scrollTop + clientHeight >=
-      (threshold.value / 100) * target.scrollHeight
-    );
+    return (target.scrollTop >= -500);
   }
 
   onScrollListener = (event: MouseEvent) => {
@@ -306,22 +307,28 @@ export default class InfiniteScroll extends Component<Props, State> {
       this.props.height || this._scrollableNode
         ? (event.target as HTMLElement)
         : document.documentElement.scrollTop
-        ? document.documentElement
-        : document.body;
+          ? document.documentElement
+          : document.body;
 
     // return immediately if the action has already been triggered,
     // prevents multiple triggers.
     if (this.actionTriggered) return;
 
-    const atBottom = this.props.inverse
-      ? this.isElementAtTop(target, this.props.scrollThreshold)
-      : this.isElementAtBottom(target, this.props.scrollThreshold);
+    const atBottom = this.isElementAtBottom(target, this.props.scrollThreshold);
+
+    const atTop = this.isElementAtTop(target, this.props.scrollThreshold);
 
     // call the `next` function in the props to trigger the next data fetch
-    if (atBottom && this.props.hasMore) {
+    if (atTop && this.props.hasMore) {
       this.actionTriggered = true;
       this.setState({ showLoader: true });
       this.props.next && this.props.next();
+    }
+
+    if (atBottom && this.props.hasMorePrevious) {
+      this.actionTriggered = true;
+      this.setState({ showLoaderDown: true });
+      this.props.previous && this.props.previous();
     }
 
     this.lastScrollTop = target.scrollTop;
@@ -358,6 +365,7 @@ export default class InfiniteScroll extends Component<Props, State> {
           ref={(infScroll: HTMLDivElement) => (this._infScroll = infScroll)}
           style={style}
         >
+          {this.state.showLoaderDown && this.props.hasMorePrevious && this.props.downLoader}
           {this.props.pullDownToRefresh && (
             <div
               style={{ position: 'relative' }}
